@@ -5,7 +5,7 @@ namespace SubscribesAndDiscounts
     public enum SubscriptionStatus : byte
     {
         Trial,
-        Base,
+        Basic,
         Pro,
         Student
     }
@@ -31,5 +31,23 @@ namespace SubscribesAndDiscounts
             get;
             set => field = value <= 0 ? throw new ArgumentException("Base price must be greater than 0") : value;
         }
+
+        public bool HasManyDevices => Devices > 3;
+
+        public double GetStatusRation => Status switch
+        {
+            SubscriptionStatus.Trial => 0,
+            SubscriptionStatus.Student => BasePrice * 0.5,
+            SubscriptionStatus.Pro => BasePrice * GetTenureRatio,
+            SubscriptionStatus.Basic => BasePrice,
+            _ => throw new ArgumentException("Invalid subscription status")
+        };
+
+        private double GetTenureRatio => TenureMonths switch
+        {
+                >= 24 => 0.85,
+                >= 12 => 0.9,
+                _ => 1
+        };
     }
 }
